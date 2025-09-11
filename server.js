@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 5000;
 
 // 💡 habilitamos CORS SOLO para tu frontend de Netlify
 app.use(cors({
-  origin: "https://goodplaces.netlify.app/" // ⚠️ cambiá por la URL real de tu frontend en Netlify
+  origin: "https://goodplaces.netlify.app" // ⚠️ cambiá por la URL real de tu frontend en Netlify
 }));
 
 app.use(express.json());
