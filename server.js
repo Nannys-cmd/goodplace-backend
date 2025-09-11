@@ -5,7 +5,11 @@ import propertiesRoutes from "./routes/properties.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// 💡 habilitamos CORS SOLO para tu frontend de Netlify
+app.use(cors({
+  origin: "https://goodplaces.netlify.app/" // ⚠️ cambiá por la URL real de tu frontend en Netlify
+}));
+
 app.use(express.json());
 
 // 👉 todas las rutas de propiedades empiezan con /api/properties
