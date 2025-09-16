@@ -11,6 +11,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "googleapis": "^159.0.0",
+    "ical": "^0.8.0",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2"
   },

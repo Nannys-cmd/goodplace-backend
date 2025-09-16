@@ -1,42 +1,37 @@
-// routes/calendar.js
+// Backend/routes/calendar.js
 import express from "express";
+import fs from "fs";
+import path from "path";
+import { google } from "googleapis";
+import { fileURLToPath } from "url";
 import fetch from "node-fetch";
+import ical from "ical";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const calendarId = process.env.GOOGLE_CALENDAR_ID;
-    const apiKey = process.env.GOOGLE_CALENDAR_KEY;
-
-    if (!calendarId || !apiKey) {
-      return res.status(500).json({ error: "Faltan credenciales en el servidor" });
-    }
-
-    const timeMin = new Date().toISOString();
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-      calendarId
-    )}/events?timeMin=${timeMin}&singleEvents=true&orderBy=startTime&maxResults=50&key=${apiKey}`;
+    // URL del calendario público de feriados nacionales en formato ICS
+    const url =
+      "https://calendar.google.com/calendar/ical/es.arg%23holiday%40group.v.calendar.google.com/public/basic.ics";
 
     const response = await fetch(url);
-    const data = await response.json();
+    const text = await response.text();
 
-    if (data.error) {
-      console.error("❌ Error en Google API:", data.error);
-      return res.status(500).json({ error: "Error al traer eventos de Google", detail: data.error });
-    }
+    const data = ical.parseICS(text);
 
-    const eventos = data.items.map((item) => ({
-      id: item.id,
-      summary: item.summary,
-      start: item.start.date || item.start.dateTime,
-      end: item.end.date || item.end.dateTime,
-    }));
+    const events = Object.values(data)
+      .filter((ev) => ev.type === "VEVENT")
+      .map((ev) => ({
+        id: ev.uid,
+        title: ev.summary,
+        date: ev.start.toISOString().split("T")[0], // YYYY-MM-DD directo
+      }));
 
-    res.json(eventos);
+    res.json(events);
   } catch (err) {
-    console.error("❌ Error al procesar eventos:", err);
-    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+    console.error("❌ Error al cargar feriados:", err);
+    res.status(500).json({ error: "No se pudieron cargar los feriados" });
   }
 });
 
