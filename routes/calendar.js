@@ -1,72 +1,42 @@
-// Backend/routes/calendar.js
+// routes/calendar.js
 import express from "express";
-import fs from "fs";
-import path from "path";
-import { google } from "googleapis";
-import { fileURLToPath } from "url";
+import fetch from "node-fetch";
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Crear carpeta credentials si no existe
-const credentialsDir = path.join(__dirname, "../credentials");
-if (!fs.existsSync(credentialsDir)) {
-  fs.mkdirSync(credentialsDir, { recursive: true });
-}
-
-// Guardar JSON de la cuenta de servicio desde la variable de entorno en un archivo temporal
-const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT;
-if (!serviceAccountJson) {
-  console.error("❌ Falta la variable de entorno GOOGLE_SERVICE_ACCOUNT");
-} else {
-  try {
-    const keyPath = path.join(credentialsDir, "temp-service-account.json");
-    // Reemplazar \n por saltos de línea reales
-    fs.writeFileSync(keyPath, serviceAccountJson.replace(/\\n/g, "\n"));
-  } catch (err) {
-    console.error("❌ Error al procesar la cuenta de servicio:", err);
-  }
-}
-
-// Configurar Google Calendar con la cuenta de servicio
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(credentialsDir, "temp-service-account.json"),
-  scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
-});
-
-const calendar = google.calendar({ version: "v3", auth });
-
-// GET /api/calendar => devuelve eventos del calendario
 router.get("/", async (req, res) => {
   try {
-    const calId = process.env.GOOGLE_CALENDAR_ID;
-    if (!calId) {
-      return res.status(500).json({ error: "Falta configuración de Google Calendar en el servidor" });
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    const apiKey = process.env.GOOGLE_CALENDAR_KEY;
+
+    if (!calendarId || !apiKey) {
+      return res.status(500).json({ error: "Faltan credenciales en el servidor" });
     }
 
-    const timeMin = req.query.timeMin || new Date().toISOString();
+    const timeMin = new Date().toISOString();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+      calendarId
+    )}/events?timeMin=${timeMin}&singleEvents=true&orderBy=startTime&maxResults=50&key=${apiKey}`;
 
-    const response = await calendar.events.list({
-      calendarId: calId,
-      timeMin,
-      singleEvents: true,
-      orderBy: "startTime",
-      maxResults: 50,
-    });
+    const response = await fetch(url);
+    const data = await response.json();
 
-    const events = (response.data.items || []).map((it) => ({
-      id: it.id,
-      title: it.summary || "Evento",
-      start: it.start?.date || it.start?.dateTime,
-      end: it.end?.date || it.end?.dateTime,
-      description: it.description || "",
+    if (data.error) {
+      console.error("❌ Error en Google API:", data.error);
+      return res.status(500).json({ error: "Error al traer eventos de Google", detail: data.error });
+    }
+
+    const eventos = data.items.map((item) => ({
+      id: item.id,
+      summary: item.summary,
+      start: item.start.date || item.start.dateTime,
+      end: item.end.date || item.end.dateTime,
     }));
 
-    res.json(events);
+    res.json(eventos);
   } catch (err) {
-    console.error("❌ Error al traer eventos de Google:", err);
-    res.status(500).json({ error: "Error al traer eventos de Google", detail: err.message });
+    console.error("❌ Error al procesar eventos:", err);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
   }
 });
 
