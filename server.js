@@ -14,16 +14,20 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://goodplaces.netlify.app" 
+  "https://goodplaces.netlify.app", 
+  "http://localhost:5173"
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        // permitir requests sin origin (por ejemplo desde Render o Postman)
+        callback(null, true);
+      } else if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn("Request bloqueado por CORS:", origin);
         callback(new Error("No permitido por CORS"));
       }
     },
