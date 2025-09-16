@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 // 🔹 Permitir tanto frontend local como Netlify
 const allowedOrigins = [
   "http://localhost:5173", // desarrollo
-  "https://goodplace.netlify.app" // producción (ajustá al dominio real en Netlify)
+  "https://goodplaces.netlify.app" // producción (ajustá al dominio real en Netlify)
 ];
 
 app.use(
