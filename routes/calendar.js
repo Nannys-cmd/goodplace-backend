@@ -1,25 +1,18 @@
 // Backend/routes/calendar.js
 import express from "express";
-import fs from "fs";
-import path from "path";
 import { google } from "googleapis";
-import { fileURLToPath } from "url";
 
 const router = express.Router();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// Guardar JSON de la cuenta de servicio desde la variable de entorno en un archivo temporal
-const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT;
-if (!serviceAccountJson) {
+// Leer la cuenta de servicio desde la variable de entorno
+if (!process.env.GOOGLE_SERVICE_ACCOUNT) {
   console.error("❌ Falta la variable de entorno GOOGLE_SERVICE_ACCOUNT");
 }
-const keyPath = path.join(__dirname, "../credentials/temp-service-account.json");
-fs.writeFileSync(keyPath, serviceAccountJson);
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
 
 // Configurar Google Calendar con la cuenta de servicio
 const auth = new google.auth.GoogleAuth({
-  keyFile: keyPath,
+  credentials,
   scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
 });
 
