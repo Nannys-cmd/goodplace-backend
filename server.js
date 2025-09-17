@@ -1,3 +1,4 @@
+// Backend/server.js
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch"; // 👈 para traer eventos de Google Calendar
