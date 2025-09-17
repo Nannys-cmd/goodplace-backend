@@ -18,13 +18,15 @@ router.get("/", async (req, res) => {
     // 👀 Log para ver qué llega
     console.log("📅 Ejemplo de datos ICS:", Object.values(data).slice(0, 3));
 
-    const events = Object.values(data)
-      .filter((ev) => ev.type === "VEVENT" && ev.summary && ev.start)
-      .map((ev) => ({
-        id: ev.uid,
-        title: ev.summary,
-        date: new Date(ev.start).toISOString().split("T")[0],
-      }));
+const events = Object.values(data)
+  .filter((ev) => ev.type === "VEVENT" && ev.summary && ev.start) // solo eventos con fecha
+  .map((ev) => ({
+    id: ev.uid,
+    title: ev.summary,
+    date: ev.start
+      ? new Date(ev.start).toISOString().split("T")[0]
+      : null,
+  }));
 
     res.json(events);
   } catch (err) {
