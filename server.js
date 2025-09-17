@@ -1,52 +1,61 @@
-// Backend/server.js
 import express from "express";
 import cors from "cors";
-import propertiesRoutes from "./routes/properties.js";
-import bookingsRoutes from "./routes/bookings.js";
-import calendarRoutes from "./routes/calendar.js";
-import path from "path";
-import { fileURLToPath } from "url";
+import fetch from "node-fetch"; // 👈 para traer eventos de Google Calendar
+import dotenv from "dotenv";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
-  "https://goodplaces.netlify.app", 
-  "http://localhost:5173"
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        // permitir requests sin origin (por ejemplo desde Render o Postman)
-        callback(null, true);
-      } else if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn("Request bloqueado por CORS:", origin);
-        callback(new Error("No permitido por CORS"));
-      }
-    },
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
-app.use("/api/properties", propertiesRoutes);
-app.use("/api/bookings", bookingsRoutes);
-app.use("/api/calendar", calendarRoutes);
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+// 🔹 Ruta base
 app.get("/", (req, res) => {
-  res.send("Backend de Goodplace corriendo correctamente 🚀");
+  res.send("Servidor backend funcionando 🚀");
 });
 
+// 🔹 Endpoint de disponibilidad (reservas + feriados)
+app.get("/api/availability", async (req, res) => {
+  try {
+    // 🟢 Reservas simuladas (acá después podés enchufar DB si querés)
+    const reservas = [
+      { title: "Reserva Juan Pérez", date: "2025-09-20" },
+      { title: "Reserva María López", date: "2025-09-25" },
+    ];
+
+    // 🟢 Feriados desde Google Calendar (Argentina)
+    const calendarId = process.env.GOOGLE_CALENDAR_ID;
+    const apiKey = process.env.GOOGLE_CALENDAR_KEY;
+
+    let feriados = [];
+    if (calendarId && apiKey) {
+      const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+        calendarId
+      )}/events?key=${apiKey}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Error al obtener eventos de Google Calendar");
+
+      const data = await response.json();
+      feriados = data.items.map((event) => ({
+        title: `Feriado: ${event.summary}`,
+        date: event.start.date || event.start.dateTime.split("T")[0],
+      }));
+    }
+
+    // 🔹 Combinar reservas y feriados
+    const events = [...reservas, ...feriados];
+
+    res.json(events);
+  } catch (err) {
+    console.error("Error al obtener disponibilidad:", err);
+    res.status(500).json({ error: "Error al obtener disponibilidad" });
+  }
+});
+
+// 🔹 Arrancar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en puerto ${PORT}`);
 });
-
