@@ -1,71 +1,61 @@
+// Backend/routes/bookings.js
 import express from "express";
-import multer from "multer";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import multer from "multer";
+import { fileURLToPath } from "url";
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// 📂 Aseguramos que la carpeta uploads exista
-const uploadsDir = path.resolve("uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+// Archivos JSON
+const bookingsFile = path.join(__dirname, "../data/bookings.json");
 
-// ⚡ Configuración de multer para guardar la imagen
+// Config multer para subir DNI
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const ts = Date.now();
-    const clean = file.originalname.replace(/\s+/g, "_");
-    cb(null, `${ts}-${clean}`);
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../uploads"));
   },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
 });
+
 const upload = multer({ storage });
 
-// 📂 JSON de reservas
-const dataDir = path.resolve("data");
-const bookingsFile = path.join(dataDir, "bookings.json");
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-if (!fs.existsSync(bookingsFile)) fs.writeFileSync(bookingsFile, JSON.stringify([]));
-
-// POST /api/bookings
-router.post("/", upload.single("dni"), (req, res) => {
+// 📌 Obtener todas las reservas
+router.get("/", (req, res) => {
   try {
-    const { name, email, propertyId, start, end } = req.body;
-    if (!name || !email || !propertyId || !start || !end || !req.file) {
-      return res.status(400).json({ ok: false, error: "Faltan datos" });
-    }
+    const data = fs.readFileSync(bookingsFile, "utf-8");
+    res.json(JSON.parse(data));
+  } catch (error) {
+    res.status(500).json({ error: "Error al leer reservas" });
+  }
+});
 
-    const dniFilePath = `/uploads/${req.file.filename}`;
-
-    // Leer y guardar reserva
-    const bookings = JSON.parse(fs.readFileSync(bookingsFile, "utf8") || "[]");
-    const id = bookings.length ? bookings[bookings.length - 1].id + 1 : 1;
-
+// 📌 Crear reserva
+router.post("/", upload.single("dniFile"), (req, res) => {
+  try {
     const newBooking = {
-      id,
-      name,
-      email,
-      propertyId: Number(propertyId),
-      start,
-      end,
-      dniFile: dniFilePath,
-      createdAt: new Date().toISOString(),
-      status: "pending",
+      id: Date.now(),
+      propertyId: req.body.propertyId,
+      name: req.body.name,
+      phone: req.body.phone,
+      dates: req.body.dates,
+      dniFile: req.file ? `/uploads/${req.file.filename}` : null
     };
-    bookings.push(newBooking);
-    fs.writeFileSync(bookingsFile, JSON.stringify(bookings, null, 2));
 
-    // Link de WhatsApp
-    const ownerPhone = process.env.OWNER_WHATSAPP || "5491157826522";
-    const message = encodeURIComponent(
-      `Hola! Soy ${name}. Quiero confirmar la reserva (id ${id}) para la propiedad ${propertyId} del ${start} al ${end}.` +
-      ` Envié el DNI aquí: ${req.protocol}://${req.get("host")}${dniFilePath}. Por favor, indicame cómo realizar el pago del 10%.`
-    );
-    const whatsappUrl = `https://wa.me/${ownerPhone}?text=${message}`;
+    const data = fs.existsSync(bookingsFile)
+      ? JSON.parse(fs.readFileSync(bookingsFile, "utf-8"))
+      : [];
 
-    res.json({ ok: true, id, whatsappUrl });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, error: "Error guardando la reserva" });
+    data.push(newBooking);
+    fs.writeFileSync(bookingsFile, JSON.stringify(data, null, 2));
+
+    res.status(201).json(newBooking);
+  } catch (error) {
+    res.status(500).json({ error: "Error al guardar reserva" });
   }
 });
 

@@ -1,5 +1,5 @@
 {
-  "name": "alquiler-backend",
+  "name": "goodplace-backend",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
@@ -14,7 +14,8 @@
     "googleapis": "^159.0.0",
     "ical": "^0.8.0",
     "multer": "^2.0.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

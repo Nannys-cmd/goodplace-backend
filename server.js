@@ -1,51 +1,28 @@
-// Backend/server.js
+//Backend/server.js
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Rutas
+import bookingsRoutes from "./routes/bookings.js";
+import propertiesRoutes from "./routes/properties.js";
+
+dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
-// 🔹 Ruta base
-app.get("/", (req, res) => {
-  res.send("Servidor backend funcionando 🚀");
-});
+// Rutas
+app.use("/api/bookings", bookingsRoutes);
+app.use("/api/properties", propertiesRoutes);
 
-// 🔹 Endpoint de propiedades (mock)
-app.get("/api/properties", (req, res) => {
-  const propiedades = [
-    {
-      id: 1,
-      title: "Cabaña en Mendoza",
-      description: "Hermosa cabaña con vista a la montaña",
-      price: 120,
-      image: "https://via.placeholder.com/300x200",
-    },
-    {
-      id: 2,
-      title: "Casa en Potrerillos",
-      description: "Ideal para escapada romántica",
-      price: 150,
-      image: "https://via.placeholder.com/300x200",
-    },
-  ];
-  res.json(propiedades);
-});
-
-// 🔹 Endpoint de disponibilidad (mock)
-app.get("/api/availability", (req, res) => {
-  const reservas = [
-    { title: "Reserva Juan Pérez", date: "2025-09-20" },
-    { title: "Reserva María López", date: "2025-09-25" },
-    { title: "Feriado: Día de la Primavera", date: "2025-09-21" },
-    { title: "Feriado: Día de la Virgen", date: "2025-12-08" },
-  ];
-  res.json(reservas);
-});
-
-// 🔹 Arrancar servidor
+// Server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
+  console.log(`✅ Servidor corriendo en puerto ${PORT}`);
 });

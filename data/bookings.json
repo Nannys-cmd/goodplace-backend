@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": 1759534144643,
+    "propertyId": "1",
+    "name": "Daniela",
+    "dniFile": "/uploads/1759534144593-DNI Frente.jpg"
+  },
+  {
+    "id": 1759534303836,
+    "propertyId": "2",
+    "name": "Daniela",
+    "dniFile": "/uploads/1759534303797-DNI Frente.jpg"
+  }
+]

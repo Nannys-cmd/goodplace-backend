@@ -2,20 +2,21 @@
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const router = express.Router();
-const dataPath = path.resolve("data/properties.json");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// GET /api/properties
+// Archivo JSON
+const propertiesFile = path.join(__dirname, "../data/properties.json");
+
+// 📌 Obtener todas las propiedades
 router.get("/", (req, res) => {
   try {
-    if (!fs.existsSync(dataPath)) {
-      return res.json([]);
-    }
-    const data = fs.readFileSync(dataPath, "utf-8") || "[]";
+    const data = fs.readFileSync(propertiesFile, "utf-8");
     res.json(JSON.parse(data));
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
     res.status(500).json({ error: "Error al leer propiedades" });
   }
 });
