@@ -2,7 +2,8 @@
   {
     "id": 1,
     "title": "Amazing wide apartment in the heart of Palermo",
-    "subtitle": "Palermo · Moderno y amplio",
+    "subtitle": "Palermo · 4 personas (1 matrimonial, 2 individuales)",
+    "beds": "1 matrimonial, 2 individuales",
     "img": "/sample1.jpg",
     "available": true,
     "price": 255,
@@ -11,7 +12,8 @@
   {
     "id": 2,
     "title": "Downtown Suite Self Check In",
-    "subtitle": "Centro · Cómodo",
+    "subtitle": "Centro · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample2.jpg",
     "available": true,
     "price": 314,
@@ -20,7 +22,8 @@
   {
     "id": 3,
     "title": "Hermoso departamento en Palermo Hollywood",
-    "subtitle": "Palermo Hollywood · Estilo moderno",
+    "subtitle": "Palermo Hollywood · 4 personas (2 matrimoniales)",
+    "beds": "2 matrimoniales",
     "img": "/sample3.jpg",
     "available": true,
     "price": 380,
@@ -29,7 +32,8 @@
   {
     "id": 4,
     "title": "Nuevo Belgrano",
-    "subtitle": "Belgrano · Nuevo y luminoso",
+    "subtitle": "Belgrano · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample4.jpg",
     "available": true,
     "price": 350,
@@ -38,7 +42,8 @@
   {
     "id": 5,
     "title": "Palermo Hollywood Skyline",
-    "subtitle": "Palermo Hollywood · Vista panorámica",
+    "subtitle": "Palermo Hollywood · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample5.jpg",
     "available": true,
     "price": 420,
@@ -47,7 +52,8 @@
   {
     "id": 6,
     "title": "Palermo Soho con Jardín",
-    "subtitle": "Palermo Soho · Con jardín privado",
+    "subtitle": "Palermo Soho · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample6.jpg",
     "available": true,
     "price": 440,
@@ -56,7 +62,8 @@
   {
     "id": 7,
     "title": "Park View Rooftop ArtDeco Design",
-    "subtitle": "Recoleta · Terraza con vista al parque",
+    "subtitle": "Recoleta · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample7.jpg",
     "available": true,
     "price": 625,
@@ -65,7 +72,8 @@
   {
     "id": 8,
     "title": "Suite Palermo",
-    "subtitle": "Palermo · Cómodo y práctico",
+    "subtitle": "Palermo · 2 personas (1 matrimonial)",
+    "beds": "1 matrimonial",
     "img": "/sample8.jpg",
     "available": true,
     "price": 314,
